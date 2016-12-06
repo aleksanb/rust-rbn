@@ -1,7 +1,9 @@
 extern crate ndarray;
 extern crate rand;
 extern crate rusty_machine;
+extern crate rayon;
 use rusty_machine::learning::logistic_reg::LogisticRegressor;
+use rayon::prelude::*;
 
 #[macro_use]
 mod utils;
@@ -9,35 +11,50 @@ mod tasks;
 mod rbn;
 mod rbn_system;
 
-use tasks::{Task, TaskType};
+use tasks::Task;
 
-fn calculate_accuracies(n_samples: usize) -> Vec<f64> {
-    let training_size = 4000;
-    let test_size = 200;
-    let n_nodes = 70;
-    let connectivity = 3;
+struct Experiment {
+    training_size: usize,
+    test_size: usize,
+    n_nodes: usize,
+    connectivity: usize,
+    n_samples: usize,
+    task_window_size: usize,
+}
 
-    let training_set = Task::new(TaskType::TemporalParity,
-                                 training_size,
-                                 3);
-    let testing_set = Task::new(TaskType::TemporalParity,
-                                test_size,
-                                3);
+fn calculate_accuracies(ex: Experiment) -> Vec<f64> {
+    let training_set = Task::new(ex.training_size,
+                                 ex.task_window_size.clone());
+    let testing_set = Task::new(ex.test_size,
+                                ex.task_window_size.clone());
 
 
-    (0..n_samples)
+    let mut output_vec = vec![0f64; ex.n_samples];
+    let nums = (0..ex.n_samples).collect::<Vec<usize>>();
+    nums.par_iter()
         .map(|_| {
             let mut rbn_system = rbn_system::ReservoirSystem {
                 readout_layer: LogisticRegressor::default(),
-                rbn_reservoir: rbn::RBN::new(n_nodes, connectivity, n_nodes / 2),
+                rbn_reservoir: rbn::RBN::new(ex.n_nodes, ex.connectivity, ex.n_nodes / 2),
             };
             rbn_system.train_on(&training_set);
             rbn_system.test_on(&testing_set)
         })
-        .collect()
+        .collect_into(&mut output_vec);
+
+    output_vec
 }
 
 fn main() {
-    let accuracies = calculate_accuracies(50);
+    let experiment = Experiment {
+        training_size: 4000,
+        test_size: 200,
+        n_nodes: 70,
+        connectivity: 3,
+        task_window_size: 3,
+        n_samples: 100,
+    };
+
+    let accuracies = calculate_accuracies(experiment);
     p!(accuracies);
 }

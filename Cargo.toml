@@ -7,3 +7,4 @@ authors = ["Aleksander Vognild Burkow <aleksanderburkow@gmail.com>"]
 ndarray = "0.7.0"
 rand = "0.3.0"
 rusty-machine="0.5.2"
+rayon = "0.4.3"

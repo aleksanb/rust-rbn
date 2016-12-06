@@ -6,15 +6,8 @@ pub struct Task {
     pub output: Vec<u8>,
 }
 
-pub enum TaskType {
-    TemporalParity,
-    TemporalDensiy,
-}
-
 impl Task {
-    pub fn new(task_type: TaskType,
-                       task_size: usize,
-                       window_size: usize) -> Self {
+    pub fn new( task_size: usize, window_size: usize) -> Self {
         let input = utils::rand_bits(task_size);
         let mut output = vec![0; task_size];
 
