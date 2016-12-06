@@ -6,7 +6,7 @@ type NodeState = u8;
 
 #[derive(Debug)]
 pub struct RBN {
-    n_nodes: usize,
+    pub n_nodes: usize,
     connectivity: usize,
     output_connectivity: usize,
     initial_state: Vec<NodeState>,
