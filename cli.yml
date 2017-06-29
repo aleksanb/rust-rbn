@@ -1,0 +1,5 @@
+name: "rust-rbn"
+version: "1.0"
+args:
+    - n_samples:
+        takes_value: true

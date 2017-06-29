@@ -1,3 +1,7 @@
+#[macro_use]
+extern crate clap;
+use clap::App;
+
 extern crate ndarray;
 extern crate rand;
 extern crate rusty_machine;
@@ -46,6 +50,9 @@ fn calculate_accuracies(ex: Experiment) -> Vec<f64> {
 }
 
 fn main() {
+    let yaml = load_yaml!("cli.yml");
+    let matches = App::from_yaml(yaml).get_matches();
+
     let experiment = Experiment {
         training_size: 4000,
         test_size: 200,
